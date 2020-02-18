@@ -31,38 +31,14 @@ killPIDFile() {
     fi
 }
 
-
-stop_ArangoDB() {
-    killPIDFile "/tmp/arangodb.pid"
-}
- 
 stop_MongoDB() {
     killPIDFile "/var/tmp/mongodb.pid"
 }
 
-stop_OrientDB() {
-    cd ${DBFOLDER}/orientdb
-    ./bin/shutdown.sh > /dev/null 2>&1
-}
-
-stop_Neo4j() {
-    ${DBFOLDER}/neo4j/bin/neo4j stop
-}
-
-stop_Postgresql() {
-    sudo -u postgres ${DBFOLDER}/postgresql/bin/pg_ctl stop -D ${DBFOLDER}/postgresql/pokec_json
-    sudo -u postgres ${DBFOLDER}/postgresql/bin/pg_ctl stop -D ${DBFOLDER}/postgresql/pokec_tabular
-    sudo service collectd stop
-}
 
 echo "================================================================================"
-echo "* stopping databases"
+echo "* stopping mongod"
 echo "================================================================================"
 
-stop_ArangoDB
 stop_MongoDB
-stop_OrientDB
-stop_Neo4j
-stop_Postgresql
-
 killPIDFile "${WATCHER_PID}"

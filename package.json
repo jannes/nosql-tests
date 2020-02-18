@@ -7,16 +7,10 @@
     "benchmark.js",
     "LICENSE",
     "README.md",
-    "arangodb/",
-    "arangodb_mmfiles/",
-    "mongodb/",
-    "neo4j/",
-    "orientdb/",
-    "postgres_jsonb/",
-    "postgres_tabular/"
+    "mongodb/"
   ],
   "scripts": {
-    "lint": "eslint benchmark.js arangodb mongodb orientdb neo4j",
+    "lint": "eslint benchmark.js mongodb",
     "data": "gunzip < data/bodies100000.json.gz > data/bodies100000.json"
   },
   "repository": {
@@ -32,13 +26,10 @@
     "eslint": "^0.22.1"
   },
   "dependencies": {
-    "arangojs": "5.8.0",
     "async": "^2.5.0",
     "bluebird": "^3.5.0",
     "line-by-line": "^0.1.6",
     "mongodb": "3.0.1",
-    "neo4j-driver": "1.5.3",
-    "orientjs": "2.2.7",
     "pg-promise": "7.4.1",
     "underscore": "1.8.3",
     "yargs": "^9.0.1"
