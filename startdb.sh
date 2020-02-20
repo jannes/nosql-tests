@@ -46,21 +46,22 @@ stop_MongoDB() {
 }
 
 start_MongoDB_Master() {
-    numactl --interleave=all \
+    bash -c "exec -a mongod0 numactl --interleave=all \
         ${DBFOLDER}/mongodb/bin/mongod42mod \
         --bind_ip 0.0.0.0 \
         --port 27017 \
+        --replSet rs0 \
         --fork \
         --logpath /var/tmp/mongodb0.log \
         --pidfilepath /var/tmp/mongodb0.pid \
         --storageEngine wiredTiger \
-        --dbpath ${DBFOLDER}/mongodb/pokec
+        --dbpath ${DBFOLDER}/mongodb/pokec"
 
     nohup bash -c "
 while true; do
     sleep 1
     echo -n \"`date`; \"
-    ps -C mongod -o 'comm cputime etimes rss pcpu' --no-headers | \
+    ps -C mongod42mod -o 'comm cputime etimes rss pcpu' --no-headers | \
         awk '${AWKCMD}'
 done  > $FN 2>&1 " > /dev/null 2>&1 &
     echo "$!" > "${WATCHER_PID0}"
@@ -71,19 +72,13 @@ start_MongoDB_Replica1() {
         ${DBFOLDER}/mongodb/bin/mongod42mod \
         --bind_ip 0.0.0.0 \
         --port 27018 \
+        --replSet rs0 \
         --fork \
         --logpath /var/tmp/mongodb1.log \
         --pidfilepath /var/tmp/mongodb1.pid \
         --storageEngine wiredTiger \
         --dbpath ${DBFOLDER}/mongodb/pokec1
 
-    nohup bash -c "
-while true; do
-    sleep 1
-    echo -n \"`date`; \"
-    ps -C mongod -o 'comm cputime etimes rss pcpu' --no-headers | \
-        awk '${AWKCMD}'
-done  > $FN 2>&1 " > /dev/null 2>&1 &
     echo "$!" > "${WATCHER_PID1}"
 }
 
@@ -92,19 +87,13 @@ start_MongoDB_Replica2() {
         ${DBFOLDER}/mongodb/bin/mongod42mod \
         --bind_ip 0.0.0.0 \
         --port 27019 \
+        --replSet rs0 \
         --fork \
         --logpath /var/tmp/mongodb2.log \
         --pidfilepath /var/tmp/mongodb2.pid \
         --storageEngine wiredTiger \
         --dbpath ${DBFOLDER}/mongodb/pokec2
 
-    nohup bash -c "
-while true; do
-    sleep 1
-    echo -n \"`date`; \"
-    ps -C mongod -o 'comm cputime etimes rss pcpu' --no-headers | \
-        awk '${AWKCMD}'
-done  > $FN 2>&1 " > /dev/null 2>&1 &
     echo "$!" > "${WATCHER_PID1}"
 }
 
@@ -134,3 +123,13 @@ echo "* starting replicas"
 echo "================================================================================"
 
 start_MongoDB_Replicas
+
+echo "================================================================================"
+echo "* configuring replica set"
+echo "================================================================================"
+
+$DBFOLDER/mongodb/bin/mongo42mod -host localhost:27017 < replSetSetup.js
+sleep 5
+$DBFOLDER/mongodb/bin/mongo42mod -host localhost:27017 < replSetReconfig.js
+
+
