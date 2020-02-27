@@ -47,7 +47,7 @@ stop_MongoDB() {
 start_MongoDB_Master() {
     numactl --interleave=all \
         ./mongod42mod \
-        --bind_ip 0.0.0.0 \
+        --bind_ip localhost \
         --port 27017 \
         --replSet rs0 \
         --fork \
@@ -63,7 +63,7 @@ start_MongoDB_Master() {
 start_MongoDB_Replica1() {
     numactl --interleave=all \
         ./mongod42mod \
-        --bind_ip 0.0.0.0 \
+        --bind_ip localhost \
         --port 27018 \
         --replSet rs0 \
         --fork \
@@ -79,7 +79,7 @@ start_MongoDB_Replica1() {
 start_MongoDB_Replica2() {
     numactl --interleave=all \
         ./mongod42mod \
-        --bind_ip 0.0.0.0 \
+        --bind_ip localhost \
         --port 27019 \
         --replSet rs0 \
         --fork \
