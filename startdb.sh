@@ -1,8 +1,11 @@
 #!/bin/bash
 
 which=mongodb
-FN=$2
+max_thread_env=$1
+repl_writer_thread_count=$2
 DBFOLDER=${3-`pwd`/databases}
+
+export MONGO_REPL_MAX_THREADS=$max_thread_env
 
 sudo bash -c "
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
@@ -18,8 +21,6 @@ WATCHER_PID0=/tmp/watcher0.pid
 WATCHER_PID1=/tmp/watcher1.pid
 WATCHER_PID2=/tmp/watcher2.pid
 
-# comm cputime etimes rss pcpu
-export AWKCMD='{a[$1] = $1; b[$1] = $2; c[$1] = $3; d[$1] = $4; e[$1] = $5} END {for (i in a) printf "%s; %s; %s; %0.1f; %0.1f\n", a[i], b[i], c[i], d[i], e[i]}'
 
 killPIDFile() {
     PID_FN=$1
@@ -46,8 +47,8 @@ stop_MongoDB() {
 }
 
 start_MongoDB_Master() {
-    bash -c "exec -a mongod0 numactl --interleave=all \
-        ${DBFOLDER}/mongodb/bin/mongod42mod \
+    numactl --interleave=all \
+        mongod42mod \
         --bind_ip 0.0.0.0 \
         --port 27017 \
         --replSet rs0 \
@@ -55,21 +56,15 @@ start_MongoDB_Master() {
         --logpath /var/tmp/mongodb0.log \
         --pidfilepath /var/tmp/mongodb0.pid \
         --storageEngine wiredTiger \
-        --dbpath ${DBFOLDER}/mongodb/pokec"
+        --dbpath ${DBFOLDER}/mongodb/pokec \
+        --setParameter replWriterThreadCount=$repl_writer_thread_count
 
-    nohup bash -c "
-while true; do
-    sleep 1
-    echo -n \"`date`; \"
-    ps -C mongod42mod -o 'comm cputime etimes rss pcpu' --no-headers | \
-        awk '${AWKCMD}'
-done  > $FN 2>&1 " > /dev/null 2>&1 &
     echo "$!" > "${WATCHER_PID0}"
 }
 
 start_MongoDB_Replica1() {
     numactl --interleave=all \
-        ${DBFOLDER}/mongodb/bin/mongod42mod \
+        mongod42mod \
         --bind_ip 0.0.0.0 \
         --port 27018 \
         --replSet rs0 \
@@ -77,14 +72,15 @@ start_MongoDB_Replica1() {
         --logpath /var/tmp/mongodb1.log \
         --pidfilepath /var/tmp/mongodb1.pid \
         --storageEngine wiredTiger \
-        --dbpath ${DBFOLDER}/mongodb/pokec1
+        --dbpath ${DBFOLDER}/mongodb/pokec1 \
+        --setParameter replWriterThreadCount=$repl_writer_thread_count
 
     echo "$!" > "${WATCHER_PID1}"
 }
 
 start_MongoDB_Replica2() {
     numactl --interleave=all \
-        ${DBFOLDER}/mongodb/bin/mongod42mod \
+        mongod42mod \
         --bind_ip 0.0.0.0 \
         --port 27019 \
         --replSet rs0 \
@@ -92,7 +88,8 @@ start_MongoDB_Replica2() {
         --logpath /var/tmp/mongodb2.log \
         --pidfilepath /var/tmp/mongodb2.pid \
         --storageEngine wiredTiger \
-        --dbpath ${DBFOLDER}/mongodb/pokec2
+        --dbpath ${DBFOLDER}/mongodb/pokec2 \
+        --setParameter replWriterThreadCount=$repl_writer_thread_count
 
     echo "$!" > "${WATCHER_PID1}"
 }
@@ -128,8 +125,8 @@ echo "==========================================================================
 echo "* configuring replica set"
 echo "================================================================================"
 
-$DBFOLDER/mongodb/bin/mongo42mod -host localhost:27017 < replSetSetup.js
+$DBFOLDER/mongodb/bin/mongo -host localhost:27017 < replSetSetup.js
 sleep 5
-$DBFOLDER/mongodb/bin/mongo42mod -host localhost:27017 < replSetReconfig.js
+$DBFOLDER/mongodb/bin/mongo -host localhost:27017 < replSetReconfig.js
 
 

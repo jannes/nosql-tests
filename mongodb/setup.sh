@@ -24,3 +24,7 @@ END=`date +%s`
 echo "Import took: $((END - START)) seconds"
 sudo pkill mongod
 
+# create same data directories for replicas
+cp -r $DB/pokec $DB/pokec1
+cp -r $DB/pokec $DB/pokec2
+
