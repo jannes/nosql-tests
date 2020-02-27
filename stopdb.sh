@@ -10,9 +10,7 @@ echo 1 > /proc/sys/net/ipv4/tcp_tw_recycle
 echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
 "
 
-WATCHER_PID0=/tmp/watcher0.pid
-WATCHER_PID1=/tmp/watcher1.pid
-WATCHER_PID2=/tmp/watcher2.pid
+WATCHER_PID=/tmp/watcher.pid
 export AWKCMD='{a[$1] = $1; b[$1] = $2; c[$1] = $3; d[$1] = $4}END{for (i in a)printf "%s, %s, %s, %0.1f\n", a[i], b[i], c[i], d[i]}'
 
 killPIDFile() {
@@ -45,6 +43,4 @@ echo "* stopping mongod instances"
 echo "================================================================================"
 
 stop_MongoDB
-killPIDFile "${WATCHER_PID0}"
-killPIDFile "${WATCHER_PID1}"
-killPIDFile "${WATCHER_PID2}"
+killPIDFile "{$WATCHER_PID}"

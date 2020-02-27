@@ -17,9 +17,7 @@ echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
 
 ulimit -n 60000
 
-WATCHER_PID0=/tmp/watcher0.pid
-WATCHER_PID1=/tmp/watcher1.pid
-WATCHER_PID2=/tmp/watcher2.pid
+WATCHER_PID0=/tmp/watcher.pid
 
 
 killPIDFile() {
@@ -59,7 +57,7 @@ start_MongoDB_Master() {
         --dbpath ${DBFOLDER}/mongodb/pokec \
         --setParameter replWriterThreadCount=$repl_writer_thread_count
 
-    echo "$!" > "${WATCHER_PID0}"
+    echo "$!" > "${WATCHER_PID}"
 }
 
 start_MongoDB_Replica1() {
@@ -75,7 +73,7 @@ start_MongoDB_Replica1() {
         --dbpath ${DBFOLDER}/mongodb/pokec1 \
         --setParameter replWriterThreadCount=$repl_writer_thread_count
 
-    echo "$!" > "${WATCHER_PID1}"
+    echo "$!" > "${WATCHER_PID}"
 }
 
 start_MongoDB_Replica2() {
@@ -91,7 +89,7 @@ start_MongoDB_Replica2() {
         --dbpath ${DBFOLDER}/mongodb/pokec2 \
         --setParameter replWriterThreadCount=$repl_writer_thread_count
 
-    echo "$!" > "${WATCHER_PID1}"
+    echo "$!" > "${WATCHER_PID}"
 }
 
 start_MongoDB_Replicas() {
@@ -104,10 +102,7 @@ echo "* stopping mongod instances"
 echo "================================================================================"
 
 stop_MongoDB
-
-killPIDFile "${WATCHER_PID0}"
-killPIDFile "${WATCHER_PID1}"
-killPIDFile "${WATCHER_PID2}"
+killPIDFile "${WATCHER_PID}"
 
 echo "================================================================================"
 echo "* starting: $which $version"
