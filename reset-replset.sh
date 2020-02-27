@@ -7,6 +7,7 @@ export MONGO_REPL_MAX_THREADS=50
 --bind_ip localhost \
 --port 27017 \
 --fork \
+--logpath /var/tmp/mongodb0-single.log \
 --storageEngine wiredTiger \
 --dbpath DBFOLDER/mongodb/pokec 
 
