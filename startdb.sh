@@ -17,7 +17,7 @@ echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
 
 ulimit -n 60000
 
-WATCHER_PID0=/tmp/watcher.pid
+WATCHER_PID=/tmp/watcher.pid
 
 
 killPIDFile() {
