@@ -9,7 +9,7 @@ export MONGO_REPL_MAX_THREADS=50
 --fork \
 --logpath /var/tmp/mongodb0-single.log \
 --storageEngine wiredTiger \
---dbpath DBFOLDER/mongodb/pokec 
+--dbpath $DBFOLDER/mongodb/pokec 
 
 $DBFOLDER/mongodb/bin/mongo -host localhost:27017 --eval "use local"
 $DBFOLDER/mongodb/bin/mongo -host localhost:27017 --eval "db.system.replset.remove({"_id":"rs0"})"
