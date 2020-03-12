@@ -19,31 +19,6 @@ ulimit -n 60000
 
 WATCHER_PID=/tmp/watcher.pid
 
-
-killPIDFile() {
-    PID_FN=$1
-    if test -f ${PID_FN}; then
-        PID=`cat ${PID_FN}`
-        kill ${PID} 2> /dev/null
-        count=0
-        while test -d /proc/${PID}; do
-            echo "."
-            sleep 1
-            count=$((${count} + 1))
-            if test "${count}" -gt 60; then
-                kill -9 ${PID}
-            fi
-        done
-        rm -f ${PID_FN}
-    fi
-}
-
-stop_MongoDB() {
-    killPIDFile "/var/tmp/mongodb0.pid"
-    killPIDFile "/var/tmp/mongodb1.pid"
-    killPIDFile "/var/tmp/mongodb2.pid"
-}
-
 start_MongoDB_Master() {
     numactl --interleave=all \
         ./mongod42mod \
@@ -96,13 +71,6 @@ start_MongoDB_Replicas() {
     start_MongoDB_Replica1
     start_MongoDB_Replica2
 }
-
-echo "================================================================================"
-echo "* stopping mongod instances"
-echo "================================================================================"
-
-stop_MongoDB
-killPIDFile "${WATCHER_PID}"
 
 echo "================================================================================"
 echo "* starting: $which $version"
